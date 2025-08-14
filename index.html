@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrinsWin</title>
-    <!-- CSS का सारा कोड यहीं है -->
+    <!-- CSS का सारा कोड -->
     <style>
-        :root { --primary-color: #483d8b; --secondary-color: #ffd700; --background-color: #121212; --card-bg: #1e1e1e; --text-color: #ffffff; --shadow: 0 4px 15px rgba(0, 0, 0, 0.4); --green: #4caf50; --violet: #9c27b0; --red: #f44336; }
+        :root { --primary-color: #483d8b; --secondary-color: #ffd700; --background-color: #121212; --card-bg: #1e1e1e; --text-color: #ffffff; --shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
         body { margin: 0; font-family: 'Poppins', sans-serif; background-color: var(--background-color); color: var(--text-color); }
         .container { max-width: 400px; margin: 0 auto; min-height: 100vh; }
         /* बाकी का CSS कोड पहले जैसा ही रहेगा... */
@@ -20,7 +20,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
-    <!-- JS का सारा कोड यहीं है -->
+    <!-- JS का सारा कोड -->
     <script>
         const firebaseConfig = { apiKey: "AIzaSyA_C5-1k40B2an8h3nTFkRflO4d4ZS6JWQ", authDomain: "mahadivya-panchang.firebaseapp.com", projectId: "mahadivya-panchang", storageBucket: "mahadivya-panchang.appspot.com", messagingSenderId: "336726728626", appId: "1:336726728626:web:9d165e3b429fe1b529ceab" };
         firebase.initializeApp(firebaseConfig);
@@ -29,21 +29,19 @@
         const db = firebase.firestore();
         const appContainer = document.getElementById('app-container');
         
-        // !! बहुत ज़रूरी !! - यह आपके बैकएंड का पता होगा
-        let BACKEND_URL = ''; // यह Netlify से अपने आप आएगा
+        // !! सबसे बड़ा बदलाव: सर्वर का पता सीधे यहाँ डाल दिया गया है !!
+        const BACKEND_URL = 'https://prinswin.onrender.com';
 
         // गेम स्क्रीन का HTML
         const gameScreenHTML = `
-            <div class="game-screen">
+            <div class="game-screen" style="transform: translateX(100%);">
                 <button id="close-game-btn" class="close-btn">&times;</button>
                 <h2>कलर क्विज़ टूर्नामेंट</h2>
                 <div class="timer-bar"><div class="timer-progress"></div></div>
                 <p id="timer-text">लोड हो रहा है...</p>
-                <!-- बाकी गेम के एलिमेंट्स यहाँ आएंगे -->
             </div>
         `;
         
-        // होम स्क्रीन रेंडर करने का फंक्शन
         const renderHomeScreen = (user) => {
             appContainer.innerHTML = `
                 <header class="main-header">
@@ -75,6 +73,7 @@
             setInterval(async () => {
                 try {
                     const response = await fetch(BACKEND_URL + '/game-state');
+                    if (!response.ok) throw new Error('Network response was not ok');
                     const data = await response.json();
                     const timerText = document.getElementById('timer-text');
                     if(timerText) {
@@ -84,22 +83,16 @@
                         timerText.textContent = `${minutes}:${seconds}`;
                     }
                 } catch (error) {
+                    const timerText = document.getElementById('timer-text');
+                    if(timerText) timerText.textContent = 'सर्वर से कनेक्ट नहीं हो सका...';
                     console.error("गेम की स्थिति लोड करने में त्रुटि:", error);
                 }
             }, 1000);
         };
         
-        // लॉगिन स्क्रीन रेंडर करने का फंक्शन (पहले जैसा ही)
-        const renderLoginScreen = () => { /* ... */ };
+        const renderLoginScreen = () => { /* यह पहले जैसा ही रहेगा */ };
 
-        // ऐप की शुरुआत
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                renderHomeScreen(user);
-            } else {
-                renderLoginScreen();
-            }
-        });
+        auth.onAuthStateChanged(user => { user ? renderHomeScreen(user) : renderLoginScreen(); });
     </script>
 </body>
 </html>
