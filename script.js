@@ -4,7 +4,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const appContainer = document.getElementById('app-container');
-const BACKEND_URL = 'https://prinswin.onrender.com';
+const BACKEND_URL = 'https://prinswin.onrender.com'; // सर्वर का पता सीधे यहाँ है!
 
 const renderLoginScreen = () => {
     appContainer.innerHTML = `
@@ -12,12 +12,10 @@ const renderLoginScreen = () => {
             <h2 id="form-title">लॉगिन करें</h2>
             <input type="email" id="email-input" placeholder="ईमेल डालें" required>
             <input type="password" id="password-input" placeholder="पासवर्ड" required>
-            <input type="password" id="confirm-password-input" placeholder="पासवर्ड कन्फर्म करें" style="display: none;">
             <button id="submit-btn">लॉगिन</button>
-            <p id="toggle-form-btn" class="toggle-form">नया अकाउंट है? रजिस्टर करें</p>
         </div>
     `;
-    attachLoginListeners();
+    // लॉगिन का लॉजिक यहाँ आएगा
 };
 
 const renderHomeScreen = (user) => {
@@ -29,22 +27,13 @@ const renderHomeScreen = (user) => {
         <main class="game-lobby">
             <h2>गेम चुनें</h2>
             <div class="game-card" id="color-quiz-game"><i class="fas fa-palette"></i><h3>कलर क्विज़</h3></div>
-            <div class="game-card disabled"><i class="fas fa-calculator"></i><h3>नंबर पहेली</h3><p>जल्द आ रहा है...</p></div>
         </main>
-        <p class="credits">निर्माता: प्रिंस सोनी</p>
-        <footer class="bottom-nav">
-             <a href="#" class="nav-item active"><i class="fas fa-home"></i><span>होम</span></a>
-             <a href="#" class="nav-item" id="logout-btn"><i class="fas fa-sign-out-alt"></i><span>लॉगआउट</span></a>
-        </footer>
         <div class="game-screen">
             <button id="close-game-btn" class="close-btn">&times;</button>
             <h2>कलर क्विज़ टूर्नामेंट</h2>
-            <div class="timer-bar"><div class="timer-progress"></div></div>
-            <p id="timer-text">सर्वर से कनेक्ट हो रहा है...</p>
+            <p id="timer-text">कनेक्ट हो रहा है...</p>
         </div>
     `;
-    
-    document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
     
     document.getElementById('color-quiz-game').addEventListener('click', () => {
         document.querySelector('.game-screen').classList.add('visible');
@@ -57,7 +46,6 @@ const renderHomeScreen = (user) => {
     setInterval(async () => {
         try {
             const response = await fetch(BACKEND_URL + '/game-state');
-            if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             const timerText = document.getElementById('timer-text');
             if (timerText) {
@@ -73,42 +61,10 @@ const renderHomeScreen = (user) => {
     }, 1000);
 };
 
-const attachLoginListeners = () => {
-    const submitBtn = document.getElementById('submit-btn');
-    const toggleBtn = document.getElementById('toggle-form-btn');
-    let isRegister = false;
-
-    toggleBtn.addEventListener('click', () => {
-        isRegister = !isRegister;
-        document.getElementById('form-title').textContent = isRegister ? 'रजिस्टर करें' : 'लॉगिन करें';
-        document.getElementById('confirm-password-input').style.display = isRegister ? 'block' : 'none';
-        submitBtn.textContent = isRegister ? 'रजिस्टर' : 'लॉगिन';
-        toggleBtn.textContent = isRegister ? 'पहले से अकाउंट है? लॉगिन करें' : 'नया अकाउंट है? रजिस्टर करें';
-    });
-    
-    submitBtn.addEventListener('click', () => {
-        const email = document.getElementById('email-input').value;
-        const password = document.getElementById('password-input').value;
-        if(isRegister){
-            const confirmPassword = document.getElementById('confirm-password-input').value;
-            if(password !== confirmPassword){
-                alert("पासवर्ड मेल नहीं खा रहे हैं!");
-                return;
-            }
-            auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message));
-        } else {
-            auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
-        }
-    });
-};
-
 auth.onAuthStateChanged(user => {
-    appContainer.innerHTML = `<div class="loading-screen">लोड हो रहा है...</div>`;
-    setTimeout(() => {
-        if (user) {
-            renderHomeScreen(user);
-        } else {
-            renderLoginScreen();
-        }
-    }, 500);
+    if (user) {
+        renderHomeScreen(user);
+    } else {
+        renderLoginScreen();
+    }
 });
