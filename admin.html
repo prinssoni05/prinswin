@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrinsWin - एडमिन पैनल</title>
+    
+    <!-- CSS का सारा कोड -->
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 1rem; }
+        .admin-container { max-width: 800px; margin: 0 auto; }
+        .login-view, .dashboard-view { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        input { width: 95%; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        button { width: 100%; padding: 1rem; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 1rem; font-weight: 600; }
+        .btn-primary { background-color: #007bff; }
+        .btn-danger { background-color: #dc3545; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        .section { margin-top: 2rem; }
+        .user-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #eee; border-radius: 4px; margin-bottom: 0.5rem; }
+        .user-card span { color: #555; }
+    </style>
+</head>
+<body>
+
+    <div id="admin-app" class="admin-container">
+        <!-- एडमिन का पूरा कंटेंट यहाँ जावास्क्रिप्ट से लोड होगा -->
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <!-- JS का सारा कोड -->
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyA_C5-1k40B2an8h3nTFkRflO4d4ZS6JWQ", authDomain: "mahadivya-panchang.firebaseapp.com", projectId: "mahadivya-panchang", storageBucket: "mahadivya-panchang.appspot.com", messagingSenderId: "336726728626", appId: "1:336726728626:web:9d165e3b429fe1b529ceab" };
+        firebase.initializeApp(firebaseConfig);
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const adminApp = document.getElementById('admin-app');
+        const ADMIN_UID = "sH2R9XDpvZZQiGM9NZWZWYjcHIx2"; // आपकी सुपर एडमिन UID
+
+        const renderAdminLogin = () => {
+            adminApp.innerHTML = `
+                <div class="login-view">
+                    <h2>एडमिन लॉगिन</h2>
+                    <input type="email" id="admin-email" placeholder="एडमिन ईमेल">
+                    <input type="password" id="admin-password" placeholder="एडमिन पासवर्ड" type="password">
+                    <button id="admin-login-btn" class="btn-primary">लॉगिन करें</button>
+                </div>
+            `;
+            document.getElementById('admin-login-btn').addEventListener('click', () => {
+                const email = document.getElementById('admin-email').value;
+                const pass = document.getElementById('admin-password').value;
+                auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+            });
+        };
+
+        const renderDashboard = () => {
+            adminApp.innerHTML = `
+                <div class="dashboard-view">
+                    <div class="header">
+                        <h1>PrinsWin कमांड सेंटर</h1>
+                        <button id="admin-logout-btn" class="btn-danger">लॉगआउट</button>
+                    </div>
+                    <div class="section">
+                        <h2>यूज़र मैनेजमेंट</h2>
+                        <div id="user-list"><p>लोड हो रहा है...</p></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('admin-logout-btn').addEventListener('click', () => auth.signOut());
+            loadUsers();
+        };
+        
+        const loadUsers = async () => {
+            const userListDiv = document.getElementById('user-list');
+            userListDiv.innerHTML = '';
+            try {
+                const snapshot = await db.collection('users').get();
+                if (snapshot.empty) {
+                    userListDiv.innerHTML = '<p>कोई यूज़र नहीं मिला।</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const card = `
+                        <div class="user-card">
+                            <span>${user.email}</span>
+                            <span>बैलेंस: ₹${user.walletBalance || 0}</span>
+                        </div>
+                    `;
+                    userListDiv.insertAdjacentHTML('beforeend', card);
+                });
+            } catch (error) {
+                userListDiv.innerHTML = '<p>यूज़र्स को लोड करने में त्रुटि हुई।</p>';
+                console.error("Error loading users:", error);
+            }
+        };
+
+        auth.onAuthStateChanged(user => {
+            if (user && user.uid === ADMIN_UID) {
+                renderDashboard();
+            } else {
+                renderAdminLogin();
+            }
+        });
+    </script>
+</body>
+</html>
