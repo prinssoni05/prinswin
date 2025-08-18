@@ -1,0 +1,21 @@
+:root { --primary-color: #483d8b; --secondary-color: #ffd700; --background-color: #121212; --card-bg: #1e1e1e; --text-color: #ffffff; --shadow: 0 4px 15px rgba(0, 0, 0, 0.4); --green: #4caf50; --violet: #9c27b0; --red: #f44336; }
+body { margin: 0; font-family: 'Poppins', sans-serif; background-color: var(--background-color); color: var(--text-color); }
+.container { max-width: 400px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 70px; overflow-x: hidden; }
+.loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 1.5rem; color: var(--secondary-color); }
+.login-screen { display: flex; flex-direction: column; justify-content: center; padding: 2rem; height: calc(100vh - 4rem); box-sizing: border-box; }
+.login-screen h2 { color: var(--secondary-color); text-align: center; }
+.login-screen input { width: 95%; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #555; background-color: #333; color: white; font-size: 1rem; }
+.login-screen button { width: 100%; padding: 1rem; border-radius: 8px; border: none; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); color: #121212; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+header { background: #1e1e1e; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+.logo h1 { font-size: 1.5rem; margin: 0; color: var(--secondary-color); }
+.user-info { display: flex; align-items: center; gap: 0.5rem; background-color: #333; padding: 0.5rem 1rem; border-radius: 20px; }
+.game-lobby { padding: 1rem; }
+.game-card { background: var(--card-bg); border-radius: 12px; padding: 1.5rem; text-align: center; cursor: pointer; border: 1px solid #333; }
+.game-card i { font-size: 2.5rem; color: var(--secondary-color); }
+.game-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: #121212; transform: translateX(100%); transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; align-items: center; padding: 1rem; z-index: 1000; box-sizing: border-box; }
+.game-screen.visible { transform: translateX(0); }
+.close-btn { position: absolute; top: 15px; right: 20px; font-size: 2.5rem; background: none; border: none; color: white; cursor: pointer; }
+#timer-text { font-size: 2.5rem; font-weight: 700; margin: 1rem 0; color: var(--secondary-color); }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 400px; margin: 0 auto; display: flex; justify-content: space-around; background-color: var(--card-bg); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); padding: 0.5rem 0; border-top: 1px solid #333; }
+.nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #aaa; }
+.nav-item.active { color: var(--secondary-color); }
